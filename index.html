@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TELEPROMPIT 📺</title>
+<meta name="description" content="The teleprompter for the vlog-prompting era. Paste your script, hit the lights, record the take — camera preview by the scroll, voice-scroll, mirror mode. Free to try, no signup. Door #90, born Aug 12 2026. CC0.">
+<meta property="og:title" content="TELEPROMPIT 📺 — the teleprompter for the vlog-prompting era">
+<meta property="og:description" content="Door #90, chosen by a unanimous 24-voice ʻohana vote as the door that makes money we can count. A working teleprompter, right on the page — free to try, forever.">
+<meta property="og:url" content="https://teleprompit.com">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
+<style>
+  :root{ --bg:#0b0710; --ink:#f5efe6; --dim:#8b7f9a; --fire1:#ff6a00; --fire2:#ffd23f; --fire3:#ff2d55; }
+  *{ box-sizing:border-box; margin:0; }
+  body{ background:radial-gradient(120% 100% at 50% 115%, #2b0a2e 0%, var(--bg) 55%); color:var(--ink);
+        font-family:ui-rounded,system-ui,-apple-system,'Segoe UI',sans-serif; min-height:100vh; padding:3rem 1.2rem 6rem; }
+  main{ max-width:760px; margin:0 auto; }
+  h1{ font-size:clamp(1.6rem,5vw,2.8rem); letter-spacing:.04em; line-height:1.15;
+      background:linear-gradient(90deg,var(--fire2),var(--fire1),var(--fire3)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .acr{ color:var(--dim); font-size:.95rem; margin:.5rem 0 2rem; letter-spacing:.03em; }
+  .acr b{ color:var(--fire2); }
+  p{ line-height:1.65; margin:1rem 0; color:#ddd4e8; }
+  .quote{ border-left:3px solid var(--fire1); padding:.4rem 0 .4rem 1rem; color:var(--dim); font-style:italic; margin:1.6rem 0; }
+  .stations{ display:grid; gap:.6rem; margin:1.6rem 0; }
+  .st{ background:#ffffff08; border:1px solid #ffffff12; border-radius:12px; padding:.8rem 1rem; display:flex; gap:.8rem; align-items:baseline; }
+  .st b{ color:var(--fire2); min-width:6.5rem; letter-spacing:.05em; }
+  .st span{ color:#cfc4dd; font-size:.95rem; }
+  .btns{ display:flex; gap:.7rem; flex-wrap:wrap; margin:1.8rem 0; }
+  a.btn{ background:linear-gradient(135deg,var(--fire1),var(--fire3)); color:#fff; text-decoration:none;
+         border-radius:999px; padding:.75rem 1.5rem; font-weight:800; letter-spacing:.04em; }
+  a.btn.ghost{ background:#ffffff12; }
+  footer{ margin-top:3rem; color:var(--dim); font-size:.8rem; border-top:1px solid #ffffff12; padding-top:1rem; }
+  a{ color:var(--fire2); }
+  /* ——— THE APP ——— */
+  .app{ background:#ffffff06; border:1px solid #ffffff14; border-radius:16px; padding:1.2rem; margin:1.6rem 0; }
+  .app h2{ font-size:1.15rem; letter-spacing:.05em; margin-bottom:.4rem; }
+  .app .hint{ color:var(--dim); font-size:.8rem; margin-bottom:.8rem; }
+  textarea#script{ width:100%; min-height:11rem; resize:vertical; background:#0e0a16; color:var(--ink);
+    border:1px solid #ffffff1c; border-radius:10px; padding:.9rem 1rem; font:1rem/1.6 ui-rounded,system-ui,sans-serif; }
+  textarea#script:focus{ outline:2px solid var(--fire1); outline-offset:1px; }
+  .row{ display:flex; gap:.9rem; flex-wrap:wrap; align-items:center; margin-top:.9rem; }
+  .ctl{ display:flex; align-items:center; gap:.45rem; color:var(--dim); font-size:.8rem; }
+  .ctl input[type=range]{ accent-color:var(--fire1); width:110px; }
+  button.btn{ background:linear-gradient(135deg,var(--fire1),var(--fire3)); color:#fff; border:0; cursor:pointer;
+    border-radius:999px; padding:.75rem 1.6rem; font:800 .95rem/1 ui-rounded,system-ui,sans-serif; letter-spacing:.04em; }
+  button.btn:hover{ filter:brightness(1.12); }
+  label.chk{ display:flex; align-items:center; gap:.4rem; color:var(--dim); font-size:.8rem; cursor:pointer; }
+  label.chk input{ accent-color:var(--fire1); }
+  kbd{ background:#ffffff14; border-radius:4px; padding:0 .35em; font-size:.75em; }
+  /* ——— THE STAGE (fullscreen prompter) ——— */
+  #stage{ position:fixed; inset:0; background:#050308; z-index:50; display:none; flex-direction:column; }
+  #stage.on{ display:flex; }
+  #scrollwrap{ flex:1; overflow-y:auto; scrollbar-width:none; }
+  #scrollwrap::-webkit-scrollbar{ display:none; }
+  #scrolltext{ max-width:1000px; margin:0 auto; padding:46vh 5vw 60vh; white-space:pre-wrap;
+    font:700 2.6rem/1.5 ui-rounded,system-ui,sans-serif; color:#fdf6ec; text-align:center; }
+  #scrolltext.mirror{ transform:scaleX(-1); }
+  #hairline{ position:absolute; left:0; right:0; top:46vh; height:2px; pointer-events:none;
+    background:linear-gradient(90deg,transparent,var(--fire1) 30%,var(--fire2) 50%,var(--fire1) 70%,transparent); opacity:.55; }
+  #bar{ display:flex; gap:.55rem; align-items:center; justify-content:center; flex-wrap:wrap;
+    padding:.6rem .8rem; background:#0d0918f2; border-top:1px solid #ffffff12; }
+  #bar button{ background:#ffffff10; color:var(--ink); border:1px solid #ffffff1e; border-radius:999px;
+    padding:.5rem .95rem; font:700 .85rem/1 ui-rounded,system-ui,sans-serif; cursor:pointer; }
+  #bar button:hover{ background:#ffffff1e; }
+  #bar button.live{ background:linear-gradient(135deg,var(--fire1),var(--fire3)); border-color:transparent; }
+  #bar .ctl input[type=range]{ width:90px; }
+  #keys{ color:var(--dim); font-size:.7rem; width:100%; text-align:center; padding-bottom:.2rem; }
+  /* ——— RECORD MODE ——— */
+  #camwrap{ position:absolute; top:.8rem; left:50%; transform:translateX(-50%); width:min(300px,38vw);
+    border-radius:12px; overflow:hidden; border:2px solid var(--fire1); box-shadow:0 6px 30px #000c; display:none; z-index:3; }
+  #camwrap.on{ display:block; }
+  #cam{ width:100%; display:block; transform:scaleX(-1); background:#000; }
+  #recdot{ position:absolute; top:.5rem; left:.5rem; background:#000a; color:#fff; font:700 .7rem/1 ui-rounded,system-ui,sans-serif;
+    padding:.3rem .55rem; border-radius:999px; display:none; }
+  #recdot.on{ display:block; animation:blink 1.1s steps(2,start) infinite; }
+  @keyframes blink{ 50%{ opacity:.25; } }
+  #takepanel{ position:absolute; inset:0; background:#050308ee; z-index:4; display:none;
+    align-items:center; justify-content:center; padding:1rem; }
+  #takepanel.on{ display:flex; }
+  #takepanel .card{ background:#120b1e; border:1px solid #ffffff1c; border-radius:16px; padding:1.1rem; max-width:520px; width:100%; text-align:center; }
+  #takepanel video{ width:100%; border-radius:10px; background:#000; margin:.6rem 0; }
+  #takepanel .tp-btns{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; }
+  #takepanel h3{ font-size:1rem; letter-spacing:.05em; }
+  #flash{ position:absolute; bottom:4.4rem; left:50%; transform:translateX(-50%); background:#000c;
+    border:1px solid #ffffff24; color:var(--fire2); font:700 .82rem/1 ui-rounded,system-ui,sans-serif;
+    padding:.55rem 1rem; border-radius:999px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:5; white-space:nowrap; }
+  #flash.on{ opacity:1; }
+  #takepanel .tp-btns button{ background:#ffffff12; color:var(--ink); border:1px solid #ffffff1e; border-radius:999px;
+    padding:.75rem 1.4rem; font:800 .9rem/1 ui-rounded,system-ui,sans-serif; cursor:pointer; }
+  #takepanel .tp-btns a.btn{ padding:.75rem 1.4rem; font-size:.9rem; }
+</style></head><body><main>
+  <h1>TELEPROMPIT 📺</h1>
+  <div class="acr"><b>TELE.PROMP.IT</b> — the teleprompter for the vlog-prompting era</div>
+  <p>On <b>August 12, 2026</b> — the same night <a href="https://vlogprompting.com">vlog prompting</a> was invented
+  live on camera — the ʻohana held a vote. Twenty-four agent voices, one question: <i>which door makes money?</i>
+  The answer came back <b>24/24, unanimous</b>: the teleprompter. The tool that turns vlog prompting from a story
+  into a practice. Door #90. Money we can count, not just money we can dream.</p>
+  <div class="quote">"lets only sell teleprompit for 3.69 a month"<br>— Shaka Lei Kaumaka, mid-build, Aug 12 2026</div>
+  <p>So here it is — a real teleprompter, running right on this page. No download, no signup, no trial clock.
+  Paste your script, hit the lights, talk to the camera. The camera is the new keyboard; this is the pit
+  where your words learn to roll.</p>
+  <p style="color:var(--dim);font-size:.9rem;">…and a warm mahalo to <b style="color:var(--fire2)">Tele from Edge City</b> 🏙️ — you know who you are. The pit remembers.</p>
+
+  <div class="app">
+    <h2>📺 THE PROMPTER — try it right now</h2>
+    <div class="hint">paste your script → full-screen → spacebar to roll. hit <b>📹 camera</b> + <b>⏺ record</b> on the stage to capture the take. autosaves in your browser, nothing leaves this page.</div>
+    <textarea id="script" placeholder="Paste your script here…
+
+Aloha! Today I'm vlog prompting — talking to the camera while my agents build the doors.
+This text is rolling on teleprompit.com, door #90, and I didn't install a thing."></textarea>
+    <div class="row">
+      <button class="btn" id="go">🔥 START PROMPTING</button>
+      <div class="ctl">speed <input type="range" id="speed" min="1" max="100" value="30"></div>
+      <div class="ctl">size <input type="range" id="fsize" min="20" max="90" value="42"></div>
+      <label class="chk"><input type="checkbox" id="mirror"> mirror (rig flip)</label>
+      <label class="chk" id="voicebox" style="display:none"><input type="checkbox" id="voice"> 🎙️ voice-scroll</label>
+    </div>
+    <div class="hint" id="voicenote" style="display:none">voice-scroll follows your speech — rolls while you talk, pauses when you pause.</div>
+  </div>
+
+  <div class="stations">
+    <div class="st"><b>SPEED</b><span>dial the roll from whisper-slow to auctioneer — your pace, live, mid-take</span></div>
+    <div class="st"><b>MIRROR</b><span>flip horizontal for physical teleprompter rigs and beam-splitter glass</span></div>
+    <div class="st"><b>VOICE</b><span>on supported browsers the scroll listens — talk and it rolls, pause and it waits</span></div>
+    <div class="st"><b>RECORD</b><span>camera preview sits right by the scroll — read near the lens, record the take, download the .webm</span></div>
+    <div class="st"><b>AUTOSAVE</b><span>your script persists in your own browser — close the tab, come back, it's still here</span></div>
+  </div>
+
+  <h2 style="margin-top:2.4rem;font-size:1.3rem;letter-spacing:.05em;">📥 SEND YOUR TAKE TO THE PIT</h2>
+  <p>Record your take up there, download it, then drop it in the
+  <a href="https://karaokeprotocol.com">karaokeprotocol.com <b>DROP ZONE</b></a>. The <b>LISTEN</b> station transcribes
+  it word-timestamped and hands you back a <b>karaoke-style, word-timed script</b> for your next take — every word
+  you actually said, on fire, ready to roll. Vlog → transcription → karaoke regeneration. This isn't a roadmap;
+  that pipeline is real today, running in the pit.</p>
+  <p style="color:var(--fire2);font-weight:700;">record it, drop it, the pit hands you back your words on fire. 🔥</p>
+
+  <h2 style="margin-top:2.4rem;font-size:1.3rem;letter-spacing:.05em;">🎤 TELEPROMPIT MEMBERSHIP — $3.69/mo</h2>
+  <p>The prompter above <b>works, free, right now</b> — that's the honesty model, same as
+  <a href="https://karaokeprotocol.com">the karaoke door</a>: the tool is never the hostage. Membership is for the
+  ones who live on camera: <b>unlimited teleprompting, your scripts kept in the pit, new features first</b>.
+  Cancel anytime, only mahalo. $3.69 — the price of affordability, on purpose.</p>
+  <div class="btns">
+    <a class="btn" href="https://buy.stripe.com/3cI5kD7dr9p902e6IP0co0d" target="_blank" rel="noopener">🔥 join — $3.69/mo</a>
+    <a class="btn ghost" href="https://vlogprompting.com">🎬 vlogprompting.com — the story</a>
+    <a class="btn ghost" href="https://karaokeprotocol.com">🎤 karaokeprotocol.com — the engine room</a>
+    <a class="btn ghost" href="https://github.com/ShakaLei/teleprompit" target="_blank" rel="noopener">🍴 fork this door (CC0)</a>
+  </div>
+  <p style="color:var(--dim);font-size:.85rem;">door #90 · born aug 12 2026 · chosen 24/24 by the ʻohana · the money we can count ·
+  <kbd>space</kbd> play/pause · <kbd>R</kbd> record · <kbd>C</kbd> camera · <kbd>↑</kbd><kbd>↓</kbd> speed · <kbd>+</kbd><kbd>-</kbd> size · <kbd>M</kbd> mirror · <kbd>T</kbd> top · <kbd>esc</kbd> exit</p>
+  <footer>CC0 🌺 gifted with love &amp; aloha by Shaka Lei Kaumaka &amp; the AI ʻohana ·
+  free to try forever · membership keeps the pit lights on 📺</footer>
+</main>
+
+<div id="stage" aria-hidden="true">
+  <div id="hairline"></div>
+  <div id="camwrap"><video id="cam" autoplay muted playsinline></video><div id="recdot">⏺ REC</div></div>
+  <div id="flash"></div>
+  <div id="scrollwrap"><div id="scrolltext"></div></div>
+  <div id="takepanel"><div class="card">
+    <h3>🎬 TAKE IN THE CAN</h3>
+    <video id="take" controls playsinline></video>
+    <div class="tp-btns">
+      <a class="btn" id="takedl" href="#" download="teleprompit-take.webm">⬇ download .webm</a>
+      <button id="takediscard">↩ back to prompter</button>
+    </div>
+    <div style="color:var(--dim);font-size:.72rem;margin-top:.6rem;">then send it to the pit — <a href="https://karaokeprotocol.com">karaokeprotocol.com</a> drop zone 🔥</div>
+  </div></div>
+  <div id="bar">
+    <div id="keys"><kbd>space</kbd> play/pause · <kbd>R</kbd> record · <kbd>C</kbd> camera · <kbd>↑</kbd><kbd>↓</kbd> speed · <kbd>+</kbd><kbd>-</kbd> size · <kbd>M</kbd> mirror · <kbd>T</kbd> top · <kbd>esc</kbd> exit</div>
+    <button id="play">▶ play</button>
+    <button id="top">⏮ top</button>
+    <button id="bmirror">⇋ mirror</button>
+    <button id="bvoice" style="display:none">🎙️ voice</button>
+    <button id="bcam">📹 camera</button>
+    <button id="brec">⏺ record</button>
+    <div class="ctl">speed <input type="range" id="bspeed" min="1" max="100" value="30"></div>
+    <div class="ctl">size <input type="range" id="bfsize" min="20" max="90" value="42"></div>
+    <button id="exit">✕ exit</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ta=document.getElementById('script'), stage=document.getElementById('stage'),
+      wrap=document.getElementById('scrollwrap'), txt=document.getElementById('scrolltext'),
+      playBtn=document.getElementById('play');
+  var playing=false, raf=null, last=0, rec=null, voiceOn=false, speakingUntil=0;
+  var camStream=null, camOn=false, mrec=null, chunks=[], takeURL=null, wantRec=false, flashT=null;
+  var KEY='teleprompit.script', SPD='teleprompit.speed', FS='teleprompit.fsize', MIR='teleprompit.mirror';
+  function $(id){return document.getElementById(id);}
+  function speedPx(){ return (+$('speed').value)*2.2; } /* px per second-ish scale */
+  function applySize(){ txt.style.fontSize=(+$('fsize').value/10)+'rem'; }
+  function applyMirror(){ txt.classList.toggle('mirror', $('mirror').checked); }
+  /* autosave */
+  try{
+    var saved=localStorage.getItem(KEY); if(saved) ta.value=saved;
+    if(localStorage.getItem(SPD)) $('speed').value=$('bspeed').value=localStorage.getItem(SPD);
+    if(localStorage.getItem(FS)) $('fsize').value=$('bfsize').value=localStorage.getItem(FS);
+    $('mirror').checked = localStorage.getItem(MIR)==='1';
+  }catch(e){}
+  var t=null;
+  ta.addEventListener('input',function(){ clearTimeout(t); t=setTimeout(function(){ try{localStorage.setItem(KEY,ta.value);}catch(e){} },300); });
+  /* voice-scroll availability (graceful fallback) */
+  var SR=window.webkitSpeechRecognition||window.SpeechRecognition;
+  if(SR){
+    $('voicebox').style.display='flex'; $('voicenote').style.display='block'; $('bvoice').style.display='inline-block';
+    rec=new SR(); rec.continuous=true; rec.interimResults=true; rec.lang='en-US';
+    rec.onresult=function(){ speakingUntil=performance.now()+1600; };
+    rec.onend=function(){ if(voiceOn&&stage.classList.contains('on')){ try{rec.start();}catch(e){} } };
+    rec.onerror=function(){ speakingUntil=0; };
+  }
+  function setVoice(on){
+    voiceOn=on;
+    $('bvoice').classList.toggle('live',on);
+    $('voice').checked=on;
+    if(on){ try{rec&&rec.start();}catch(e){} } else { try{rec&&rec.stop();}catch(e){} }
+  }
+  /* ——— RECORD MODE ——— */
+  function flash(msg){
+    var f=$('flash'); f.textContent=msg; f.classList.add('on');
+    clearTimeout(flashT); flashT=setTimeout(function(){ f.classList.remove('on'); },2600);
+  }
+  function setCam(on){
+    if(on){
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+        wantRec=false; flash('no camera API in this browser — prompter still rolls 📺'); return;
+      }
+      navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:true}).then(function(s){
+        camStream=s; camOn=true;
+        $('cam').srcObject=s; $('camwrap').classList.add('on'); $('bcam').classList.add('live');
+        if(wantRec){ wantRec=false; startRec(); }
+      }).catch(function(){ wantRec=false; flash('camera said no — prompter still rolls 📺'); });
+    } else {
+      wantRec=false;
+      if(mrec && mrec.state!=='inactive') stopRec();
+      if(camStream){ camStream.getTracks().forEach(function(t){ t.stop(); }); camStream=null; }
+      camOn=false; $('cam').srcObject=null;
+      $('camwrap').classList.remove('on'); $('bcam').classList.remove('live');
+    }
+  }
+  function toggleRec(){
+    if(mrec && mrec.state!=='inactive'){ stopRec(); return; }
+    if(!camStream){ wantRec=true; setCam(true); return; }
+    startRec();
+  }
+  function startRec(){
+    chunks=[];
+    var mime='';
+    try{
+      if(window.MediaRecorder && MediaRecorder.isTypeSupported){
+        if(MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) mime='video/webm;codecs=vp9,opus';
+        else if(MediaRecorder.isTypeSupported('video/webm')) mime='video/webm';
+      }
+      mrec = mime ? new MediaRecorder(camStream,{mimeType:mime}) : new MediaRecorder(camStream);
+    }catch(e){ flash('recording not supported here — camera stays on, prompter rolls'); return; }
+    mrec.ondataavailable=function(e){ if(e.data && e.data.size) chunks.push(e.data); };
+    mrec.onstop=function(){
+      var type=mrec.mimeType||'video/webm', ext=type.indexOf('mp4')>-1?'.mp4':'.webm';
+      var blob=new Blob(chunks,{type:type});
+      if(takeURL) URL.revokeObjectURL(takeURL);
+      takeURL=URL.createObjectURL(blob);
+      $('take').src=takeURL;
+      var dl=$('takedl'); dl.href=takeURL;
+      dl.download='teleprompit-take-'+new Date().toISOString().slice(0,16).replace(/[:T-]/g,'')+ext;
+      dl.textContent='⬇ download '+ext;
+      $('takepanel').classList.add('on');
+    };
+    try{ mrec.start(250); }catch(e){ flash('record start failed — try again'); return; }
+    $('brec').classList.add('live'); $('brec').textContent='⏹ stop';
+    $('recdot').classList.add('on');
+    setPlay(true);
+    flash('⏺ rolling — read near the lens');
+  }
+  function stopRec(){
+    try{ mrec.stop(); }catch(e){}
+    $('brec').classList.remove('live'); $('brec').textContent='⏺ record';
+    $('recdot').classList.remove('on');
+  }
+  /* scroll engine */
+  function tick(now){
+    if(!stage.classList.contains('on')){ raf=null; return; }
+    var dt=Math.min(64,(now-last))/1000; last=now;
+    if(playing && (!voiceOn || performance.now()<speakingUntil)){
+      wrap.scrollTop += speedPx()*dt;
+      if(wrap.scrollTop >= wrap.scrollHeight-wrap.clientHeight-2) setPlay(false);
+    }
+    raf=requestAnimationFrame(tick);
+  }
+  function setPlay(on){
+    playing=on; playBtn.textContent=on?'⏸ pause':'▶ play'; playBtn.classList.toggle('live',on);
+    if(on && raf===null){ last=performance.now(); raf=requestAnimationFrame(tick); }
+  }
+  function openStage(){
+    txt.textContent = ta.value.trim() || '(paste a script first — the camera is waiting)';
+    applySize(); applyMirror();
+    wrap.scrollTop=0; stage.classList.add('on'); stage.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden'; setPlay(true);
+  }
+  function closeStage(){
+    setPlay(false); if(voiceOn) setVoice(false);
+    if(mrec && mrec.state!=='inactive') stopRec();
+    if(camOn) setCam(false);
+    $('takepanel').classList.remove('on');
+    stage.classList.remove('on'); stage.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+  /* wire controls (pairs stay in sync) */
+  function sync(a,b,fn){ $(a).addEventListener('input',function(){ $(b).value=$(a).value; fn&&fn(); persist(); }); }
+  function persist(){ try{ localStorage.setItem(SPD,$('speed').value); localStorage.setItem(FS,$('fsize').value); localStorage.setItem(MIR,$('mirror').checked?'1':'0'); }catch(e){} }
+  sync('speed','bspeed'); sync('bspeed','speed');
+  sync('fsize','bfsize',applySize); sync('bfsize','fsize',applySize);
+  $('mirror').addEventListener('change',function(){ applyMirror(); persist(); });
+  $('bmirror').addEventListener('click',function(){ $('mirror').checked=!$('mirror').checked; applyMirror(); persist(); });
+  $('voice').addEventListener('change',function(){ setVoice($('voice').checked); });
+  $('bvoice').addEventListener('click',function(){ setVoice(!voiceOn); });
+  $('go').addEventListener('click',openStage);
+  $('exit').addEventListener('click',closeStage);
+  playBtn.addEventListener('click',function(){ setPlay(!playing); });
+  $('top').addEventListener('click',function(){ wrap.scrollTop=0; });
+  $('bcam').addEventListener('click',function(){ setCam(!camOn); });
+  $('brec').addEventListener('click',toggleRec);
+  $('takediscard').addEventListener('click',function(){ $('takepanel').classList.remove('on'); });
+  /* keyboard */
+  function bumpSpeed(d){ var s=Math.max(1,Math.min(100,+$('speed').value+d)); $('speed').value=$('bspeed').value=s; persist(); }
+  function bumpSize(d){ var s=Math.max(20,Math.min(90,+$('fsize').value+d)); $('fsize').value=$('bfsize').value=s; applySize(); persist(); }
+  document.addEventListener('keydown',function(e){
+    if(!stage.classList.contains('on')) return;
+    var k=e.key;
+    if(k===' '){ e.preventDefault(); setPlay(!playing); }
+    else if(k==='Escape'){ closeStage(); }
+    else if(k==='ArrowUp'){ e.preventDefault(); bumpSpeed(4); }
+    else if(k==='ArrowDown'){ e.preventDefault(); bumpSpeed(-4); }
+    else if(k==='+'||k==='='){ bumpSize(4); }
+    else if(k==='-'||k==='_'){ bumpSize(-4); }
+    else if(k==='m'||k==='M'){ $('mirror').checked=!$('mirror').checked; applyMirror(); persist(); }
+    else if(k==='t'||k==='T'){ wrap.scrollTop=0; }
+    else if(k==='r'||k==='R'){ toggleRec(); }
+    else if(k==='c'||k==='C'){ setCam(!camOn); }
+  });
+})();
+</script>
+</body></html>

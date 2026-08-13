@@ -558,4 +558,70 @@ if(mob()){
 })();
 </script>
 
+<!-- TELE chat bubble 📺 — teleprompit.com · hub: tele-chat.shakaverse.workers.dev -->
+<div id="tele-fab" style="position:fixed;right:18px;bottom:18px;z-index:99998;width:64px;height:64px;border-radius:50%;cursor:pointer;background:linear-gradient(135deg,#ffd23f 0%,#ff6a00 50%,#ff2d55 100%);box-shadow:0 4px 18px rgba(255,106,0,.55);display:flex;align-items:center;justify-content:center;font-size:30px;transition:transform .2s;">📺</div>
+<div id="tele-panel" style="display:none;position:fixed;right:18px;bottom:92px;z-index:99999;width:340px;max-width:calc(100vw - 36px);height:440px;background:#0b0710;border:1px solid #ff6a0055;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.6);flex-direction:column;overflow:hidden;font-family:ui-rounded,system-ui,-apple-system,'Segoe UI',sans-serif;">
+  <div style="background:linear-gradient(135deg,#ffd23f,#ff6a00,#ff2d55);padding:12px 14px;color:#14101f;">
+    <div style="font-weight:800;font-size:15px;">TELE 📺</div>
+    <div style="font-size:11px;opacity:.8;">the chillest SA sponsorship stud · scroll whisperer</div>
+  </div>
+  <div id="tele-log" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
+  <div style="display:flex;gap:6px;padding:10px;border-top:1px solid #ffffff14;">
+    <input id="tele-in" placeholder="ask about the lights, bru…" style="flex:1;background:#0e0a16;border:1px solid #ffffff22;color:#f5efe6;border-radius:10px;padding:9px 10px;font-size:14px;outline:none;">
+    <button id="tele-send" style="background:linear-gradient(135deg,#ff6a00,#ff2d55);border:0;color:#fff;font-weight:800;border-radius:10px;padding:0 16px;cursor:pointer;">➤</button>
+  </div>
+</div>
+<script>
+(function(){
+  var HUB = "https://tele-chat.shakaverse.workers.dev";
+  var fab = document.getElementById('tele-fab'), panel = document.getElementById('tele-panel'),
+      log = document.getElementById('tele-log'), inp = document.getElementById('tele-in');
+  var sess = localStorage.getItem('tele_session');
+  if (!sess) { sess = 't' + Math.random().toString(36).slice(2,10); localStorage.setItem('tele_session', sess); }
+  var name = localStorage.getItem('tele_name') || 'guest';
+  var last = 0, open = false, polling = false;
+  function add(role, who, text){
+    var d = document.createElement('div');
+    var mine = role === 'visitor';
+    d.style.cssText = 'max-width:85%;padding:8px 11px;border-radius:12px;font-size:13.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word;'
+      + (mine ? 'align-self:flex-end;background:#ff6a0022;border:1px solid #ff6a0044;color:#ffe8d6;'
+              : 'align-self:flex-start;background:#ffd23f1c;border:1px solid #ffd23f44;color:#fff3d6;');
+    d.innerHTML = (mine ? '' : '<div style="font-size:10px;opacity:.65;margin-bottom:2px;">'+who+'</div>') + text.replace(/</g,'&lt;');
+    log.appendChild(d); log.scrollTop = log.scrollHeight;
+  }
+  function greet(){
+    if (!localStorage.getItem('tele_greeted')) {
+      add('tele','TELE 📺','Howzit! I\'m TELE 📺 — the chillest prompter buddy in the business. New to this? I\'ll make you feel like a headliner, bru.');
+      localStorage.setItem('tele_greeted','1');
+    }
+  }
+  async function poll(){
+    if (polling) return; polling = true;
+    try {
+      var r = await fetch(HUB + '/poll?session=' + sess + '&after=' + last + '&timeout=20');
+      var d = await r.json();
+      (d.messages || []).forEach(function(m){ last = Math.max(last, m.seq); if (m.session === sess) add(m.role, m.name || '', m.text); });
+    } catch(e) {}
+    polling = false;
+    if (open) setTimeout(poll, 300); else setTimeout(poll, 8000);
+  }
+  async function send(){
+    var t = inp.value.trim(); if (!t) return; inp.value = '';
+    if (!localStorage.getItem('tele_name')) {
+      localStorage.setItem('tele_name', t.slice(0,24)); name = t.slice(0,24);
+      add('tele','TELE 📺','lekker to meet you, ' + t.slice(0,24) + ' 🌺 now — let\'s get you on the lights. What\'s the script?');
+      return;
+    }
+    add('visitor','you',t);
+    await fetch(HUB + '/send', { method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ session: sess, name: name, text: t }) });
+    setTimeout(poll, 500);
+  }
+  fab.onclick = function(){ open = !open; panel.style.display = open ? 'flex' : 'none'; if (open){ greet(); poll(); } };
+  document.getElementById('tele-send').onclick = send;
+  inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') send(); });
+  fab.onmouseenter = function(){ fab.style.transform = 'scale(1.08)'; };
+  fab.onmouseleave = function(){ fab.style.transform = 'scale(1)'; };
+})();
+</script>
 </body></html>

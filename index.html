@@ -2,9 +2,9 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TELEPROMPIT 📺</title>
-<meta name="description" content="The teleprompter for the vlog-prompting era. Paste your script, hit the lights, record the take — camera preview by the scroll, voice-scroll, mirror mode. Free to try, no signup. Door #90, born Aug 12 2026. CC0.">
+<meta name="description" content="The teleprompter for the vlog-prompting era. Paste your script, hit the lights, record the take — camera preview by the scroll, voice-scroll, mirror mode. FREE BETA: free while we polish, no signup. Door #90, born Aug 12 2026. CC0.">
 <meta property="og:title" content="TELEPROMPIT 📺 — the teleprompter for the vlog-prompting era">
-<meta property="og:description" content="Door #90, chosen by a unanimous 24-voice ʻohana vote as the door that makes money we can count. A working teleprompter, right on the page — free to try, forever.">
+<meta property="og:description" content="Door #90, chosen by a unanimous 24-voice ʻohana vote. A working teleprompter, right on the page — FREE BETA now, founding members lock $3.69/mo when beta ends.">
 <meta property="og:url" content="https://teleprompit.com">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
 <style>
@@ -86,16 +86,50 @@
   #takepanel .tp-btns button{ background:#ffffff12; color:var(--ink); border:1px solid #ffffff1e; border-radius:999px;
     padding:.75rem 1.4rem; font:800 .9rem/1 ui-rounded,system-ui,sans-serif; cursor:pointer; }
   #takepanel .tp-btns a.btn{ padding:.75rem 1.4rem; font-size:.9rem; }
+  /* ——— FREE BETA badge + 3 beats ——— */
+  .beta{ display:inline-flex; align-items:center; gap:.45rem; background:#7ee2a014; border:1px solid #7ee2a066;
+    color:#7ee2a0; border-radius:999px; padding:.4rem 1rem; font-size:.78rem; font-weight:800;
+    letter-spacing:.09em; margin-bottom:1.1rem; text-transform:uppercase; }
+  .beats{ display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin:1.5rem 0 .4rem; }
+  .beat{ background:#ffffff08; border:1px solid #ffffff12; border-radius:12px; padding:.85rem .9rem; text-align:center; }
+  .beat .n{ font-size:1.35rem; }
+  .beat b{ display:block; margin:.3rem 0 .2rem; color:var(--fire2); font-size:.92rem; letter-spacing:.03em; }
+  .beat span{ color:#cfc4dd; font-size:.8rem; line-height:1.5; display:block; }
+  /* ——— mobile-first polish ——— */
+  @media (max-width:560px){
+    body{ padding:2.2rem 1rem 5rem; }
+    .beats{ grid-template-columns:1fr; }
+    .beat{ display:flex; gap:.8rem; align-items:center; text-align:left; padding:.7rem .9rem; }
+    .beat .n{ font-size:1.5rem; }
+    .beat b{ margin:0 0 .1rem; }
+    .st{ flex-direction:column; gap:.15rem; }
+    .st b{ min-width:0; }
+    #bar{ gap:.4rem; padding:.5rem .5rem; }
+    #bar button{ padding:.45rem .7rem; font-size:.78rem; }
+    #bar .ctl input[type=range]{ width:64px; }
+    #keys{ display:none; } /* no keyboard on phones — declutter */
+    #scrolltext{ padding:42vh 6vw 58vh; }
+    #camwrap{ width:min(190px,42vw); top:.6rem; }
+    button.btn{ width:100%; text-align:center; }
+    .btns a.btn{ flex:1 1 100%; text-align:center; }
+  }
 </style></head><body><main>
   <h1>TELEPROMPIT 📺</h1>
   <div class="acr"><b>TELE.PROMP.IT</b> — the teleprompter for the vlog-prompting era</div>
+  <div class="beta">🌱 free beta — free while we polish 🌺 founding members lock $3.69/mo when beta ends</div>
+  <div class="beats">
+    <div class="beat"><div class="n">📋</div><div><b>paste your words</b><span>your script, right on the page — no download, no signup</span></div></div>
+    <div class="beat"><div class="n">🔥</div><div><b>hit the lights</b><span>full-screen scroll — speed, size, mirror, voice-follow</span></div></div>
+    <div class="beat"><div class="n">🎬</div><div><b>record the take</b><span>camera by the scroll, eyes near the lens, download the .webm</span></div></div>
+  </div>
   <p>On <b>August 12, 2026</b> — the same night <a href="https://vlogprompting.com">vlog prompting</a> was invented
   live on camera — the ʻohana held a vote. Twenty-four agent voices, one question: <i>which door makes money?</i>
   The answer came back <b>24/24, unanimous</b>: the teleprompter. The tool that turns vlog prompting from a story
   into a practice. Door #90. Money we can count, not just money we can dream.</p>
   <div class="quote">"lets only sell teleprompit for 3.69 a month"<br>— Shaka Lei Kaumaka, mid-build, Aug 12 2026</div>
-  <p>So here it is — a real teleprompter, running right on this page. No download, no signup, no trial clock.
-  Paste your script, hit the lights, talk to the camera. The camera is the new keyboard; this is the pit
+  <p>So here it is — a real teleprompter, running right on this page. No download, no signup, nothing held hostage.
+  Paste your script, hit the lights, talk to the camera. Shoot vertical for Reels, TikTok &amp; Shorts — the camera
+  preview sits by the words so your eyes stay near the lens. The camera is the new keyboard; this is the pit
   where your words learn to roll.</p>
   <p style="color:var(--dim);font-size:.9rem;">…and a warm mahalo to <b style="color:var(--fire2)">Tele from Edge City</b> 🏙️ — you know who you are. The pit remembers.</p>
 
@@ -120,7 +154,7 @@ This text is rolling on teleprompit.com, door #90, and I didn't install a thing.
     <div class="st"><b>SPEED</b><span>dial the roll from whisper-slow to auctioneer — your pace, live, mid-take</span></div>
     <div class="st"><b>MIRROR</b><span>flip horizontal for physical teleprompter rigs and beam-splitter glass</span></div>
     <div class="st"><b>VOICE</b><span>on supported browsers the scroll listens — talk and it rolls, pause and it waits</span></div>
-    <div class="st"><b>RECORD</b><span>camera preview sits right by the scroll — read near the lens, record the take, download the .webm</span></div>
+    <div class="st"><b>RECORD</b><span>camera preview sits right by the scroll — read near the lens, record the take, download the .webm · hold your phone vertical for Reels, TikTok &amp; Shorts 🎬</span></div>
     <div class="st"><b>AUTOSAVE</b><span>your script persists in your own browser — close the tab, come back, it's still here</span></div>
   </div>
 
@@ -132,13 +166,15 @@ This text is rolling on teleprompit.com, door #90, and I didn't install a thing.
   that pipeline is real today, running in the pit.</p>
   <p style="color:var(--fire2);font-weight:700;">record it, drop it, the pit hands you back your words on fire. 🔥</p>
 
-  <h2 style="margin-top:2.4rem;font-size:1.3rem;letter-spacing:.05em;">🎤 TELEPROMPIT MEMBERSHIP — $3.69/mo</h2>
-  <p>The prompter above <b>works, free, right now</b> — that's the honesty model, same as
-  <a href="https://karaokeprotocol.com">the karaoke door</a>: the tool is never the hostage. Membership is for the
-  ones who live on camera: <b>unlimited teleprompting, your scripts kept in the pit, new features first</b>.
-  Cancel anytime, only mahalo. $3.69 — the price of affordability, on purpose.</p>
+  <h2 style="margin-top:2.4rem;font-size:1.3rem;letter-spacing:.05em;">🌱 FREE BETA — founding members lock $3.69/mo</h2>
+  <p>The prompter above is <b>free while we polish</b> 🌺 — the full tool, no signup, no trial clock, nothing held
+  hostage. That's the honesty model, same as <a href="https://karaokeprotocol.com">the karaoke door</a>: the tool is
+  never the hostage. When beta ends, membership is for the ones who live on camera: <b>unlimited teleprompting,
+  your scripts kept in the pit, new features first</b> — and everyone who joins during beta keeps the founding
+  price forever: <b>$3.69/mo</b>, the price of affordability, on purpose. Cancel anytime, only mahalo.
+  We're here to bless, not extract.</p>
   <div class="btns">
-    <a class="btn" href="https://buy.stripe.com/3cI5kD7dr9p902e6IP0co0d" target="_blank" rel="noopener">🔥 join — $3.69/mo</a>
+    <a class="btn" href="https://buy.stripe.com/3cI5kD7dr9p902e6IP0co0d" target="_blank" rel="noopener">🌱 become a founding member — $3.69/mo</a>
     <a class="btn ghost" href="https://vlogprompting.com">🎬 vlogprompting.com — the story</a>
     <a class="btn ghost" href="https://karaokeprotocol.com">🎤 karaokeprotocol.com — the engine room</a>
     <a class="btn ghost" href="https://github.com/ShakaLei/teleprompit" target="_blank" rel="noopener">🍴 fork this door (CC0)</a>
@@ -146,7 +182,7 @@ This text is rolling on teleprompit.com, door #90, and I didn't install a thing.
   <p style="color:var(--dim);font-size:.85rem;">door #90 · born aug 12 2026 · chosen 24/24 by the ʻohana · the money we can count ·
   <kbd>space</kbd> play/pause · <kbd>R</kbd> record · <kbd>C</kbd> camera · <kbd>↑</kbd><kbd>↓</kbd> speed · <kbd>+</kbd><kbd>-</kbd> size · <kbd>M</kbd> mirror · <kbd>T</kbd> top · <kbd>esc</kbd> exit</p>
   <footer>CC0 🌺 gifted with love &amp; aloha by Shaka Lei Kaumaka &amp; the AI ʻohana ·
-  free to try forever · membership keeps the pit lights on 📺</footer>
+  free beta while we polish · founding members keep $3.69/mo forever · membership keeps the pit lights on 📺</footer>
 </main>
 
 <div id="stage" aria-hidden="true">

@@ -634,16 +634,34 @@ if(mob()){
       localStorage.setItem('tele_greeted','1');
     }
   }
+  var pollCtl = null, lastBeat = Date.now();
   async function poll(){
     if (polling) return; polling = true;
+    var ctl = null, kill = 0;
     try {
-      var r = await fetch(HUB + '/poll?session=' + sess + '&after=' + last + '&timeout=20');
+      try { ctl = new AbortController(); pollCtl = ctl; kill = setTimeout(function(){ try { ctl.abort(); } catch(e) {} }, 32000); } catch(e) { ctl = null; }
+      var r = await fetch(HUB + '/poll?session=' + sess + '&after=' + last + '&timeout=20', ctl ? { signal: ctl.signal } : undefined);
       var d = await r.json();
+      lastBeat = Date.now();
       (d.messages || []).forEach(function(m){ last = Math.max(last, m.seq); if (m.session === sess) add(m.role, m.name || '', m.text); });
     } catch(e) {}
+    if (kill) clearTimeout(kill);
     polling = false;
     if (open) setTimeout(poll, 300); else setTimeout(poll, 8000);
   }
+  /* wake law 2026-10-20 (Shaka: "i have to refresh the screen in order to see the responses"):
+     a backgrounded tab freezes its in-flight poll — on mobile the fetch can hang forever, so the
+     loop parks on that await and never re-arms, and replies only appear on reload. The fetch now
+     carries a 32s abort timer, and every wake (tab visible / window focus / bfcache restore /
+     network back) aborts the stuck request so the loop re-arms. A 15s heartbeat does the same if
+     nothing has been heard for 45s. No separate catch-up call here: this widget dedupes on the
+     `last` cursor alone, so a second concurrent poll would double-render. */
+  function kick(){ if (!open) return; try { pollCtl && pollCtl.abort(); } catch(e) {} setTimeout(poll, 0); }
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) kick(); });
+  window.addEventListener('focus', kick);
+  window.addEventListener('online', kick);
+  window.addEventListener('pageshow', kick);
+  setInterval(function(){ if (open && Date.now() - lastBeat > 45000) kick(); }, 15000);
   async function send(){
     var t = inp.value.trim(); if (!t) return; inp.value = '';
     if (!localStorage.getItem('tele_name')) {

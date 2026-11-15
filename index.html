@@ -634,16 +634,22 @@ if(mob()){
       localStorage.setItem('tele_greeted','1');
     }
   }
+  /* echo law 2026-11-15: the hub echoes the visitor's own line back through /poll, and send() already drew it — it showed twice.
+     Skip exactly one hub echo per line typed on this page (history from earlier visits still renders). */
+  var echoed = [];
+  function isEcho(m){ if (m.role !== 'visitor') return false; var i = echoed.indexOf(String(m.text || '').trim()); if (i < 0) return false; echoed.splice(i, 1); return true; }
   var pollCtl = null, lastBeat = Date.now();
+  /* long-poll law 2026-11-15: every hub reads `wait`, never `timeout` — `&timeout=20` made this widget short-poll
+     ~3×/s while open. A real 25 s long-poll answers just as fast (the hub wakes it on reply) at 1/80 of the load. */
   async function poll(){
     if (polling) return; polling = true;
     var ctl = null, kill = 0;
     try {
       try { ctl = new AbortController(); pollCtl = ctl; kill = setTimeout(function(){ try { ctl.abort(); } catch(e) {} }, 32000); } catch(e) { ctl = null; }
-      var r = await fetch(HUB + '/poll?session=' + sess + '&after=' + last + '&timeout=20', ctl ? { signal: ctl.signal } : undefined);
+      var r = await fetch(HUB + '/poll?session=' + sess + '&after=' + last + '&wait=25', ctl ? { signal: ctl.signal } : undefined);
       var d = await r.json();
       lastBeat = Date.now();
-      (d.messages || []).forEach(function(m){ last = Math.max(last, m.seq); if (m.session === sess) add(m.role, m.name || '', m.text); });
+      (d.messages || []).forEach(function(m){ last = Math.max(last, m.seq); if (m.session === sess && !isEcho(m)) add(m.role, m.name || '', m.text); });
     } catch(e) {}
     if (kill) clearTimeout(kill);
     polling = false;
@@ -670,6 +676,7 @@ if(mob()){
       return;
     }
     add('visitor','you',t);
+    echoed.push(t);
     await fetch(HUB + '/send', { method:'POST', headers:{'content-type':'application/json'},
       body: JSON.stringify({ session: sess, name: name, text: t }) });
     setTimeout(poll, 500);
